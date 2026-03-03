@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang = "en">
+
+<head>
+	<title>The Flying Casino</title>
+</head>
+
+<body>
+	<main>		
+		<input id="messageInput" placeholder="Message">
+		<button id="sendMessage">Send</button>
+
+		<div id="messageBox">
+			<p>Messages received:</p>
+		</div>
+
+		<script type = "module" src="./network.js">
+			import { constructNetworkAPI } from "./network.js"
+			async function init() {
+				const network = await constructNetworkAPI("wss://flying-casino-brakftgmdhbca5cy.canadacentral-01.azurewebsites.net/")
+
+				const input = document.getElementById("messageInput")
+				const button = document.getElementById("sendMessage")
+				const messages = document.getElementById("messageBox")
+				
+				button.onclick = () => {
+					network.sendStringifiedJson(JSON.stringify({
+						text: input.value
+					}))
+					input.value = ""
+				}
+
+				network.onmessage = (message) => {
+					const p = document.createElement ("p")
+					console.log(message)
+					p.innerText = "From: " + JSON.parse(message.data).from + "\n" + JSON.parse(message.data).text
+					messages.appendChild(p)
+				}
+			}
+			init()
+		</script>
+	</main>
+</body>
+
+</html>
